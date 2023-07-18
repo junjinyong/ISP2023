@@ -7,10 +7,11 @@
 #
 
 # Import required modules
-import numpy as np
+import sys
 import cv2
 import imutils
 import dlib
+import numpy as np
 from facedetector import FaceDetector
 
 sys.path.append('..')
