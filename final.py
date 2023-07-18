@@ -60,7 +60,7 @@ def main():
             for num in range(68):
                 x = shape.part(num).x
                 y = shape.part(num).y
-                cv2.circle(img, (x, y), 1, (0, 0, 255), -1)
+                cv2.circle(img, (x, y), 5, (0, 0, 255), -1)
 
             num = 34
             x = shape.part(num).x
