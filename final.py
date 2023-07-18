@@ -11,10 +11,12 @@ import numpy as np
 import cv2
 import imutils
 import dlib
+from facedetector import FaceDetector
+
+sys.path.append('..')
 from lib.camera_v2 import Camera
 from lib.robot import Robot
 from lib.ros_environment import ROSEnvironment
-from facedetector import FaceDetector
 
 
 def onMouse(event, u, v, flags, param):
