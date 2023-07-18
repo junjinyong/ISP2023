@@ -13,6 +13,7 @@ import imutils
 import dlib
 import numpy as np
 from facedetector import FaceDetector
+from blurer import Blurer
 
 sys.path.append('..')
 from lib.camera_v2 import Camera
@@ -34,8 +35,9 @@ def main():
     camera.start()
     robot.start()
 
-    # Initialize Face Detector
+    # Initialize face detector and bluerer
     facedetector = FaceDetector()
+    blurer = Blurer()
 
     # Create a window called "Frame" and install a mouse handler
     cv2.namedWindow("Frame")
@@ -55,6 +57,15 @@ def main():
 
             # Draw box
             cv2.rectangle(img, (face.left(), face.top()), (face.right(), face.bottom()), (0, 0, 255), 2)
+
+            # Find facial landmark
+            num = 34
+            shape = facedetector.predictor(img, face)
+            x = shape.part(num).x
+            y = shape.part(num).y
+
+            # Blur face
+            img = blurer.blur(img, (x, y))
 
         # Display image
         cv2.imshow("Frame", img[..., ::-1])
