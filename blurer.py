@@ -13,7 +13,7 @@ import emoji
 
 class Blurer:
     def __init__(self):
-        self.font = ImageFont.truetype("Arial Unicode.ttf", 32)
+        self.font = ImageFont.truetype("Arial Unicode.ttf", 64)
         self.tick = str(emoji.emojize(':grinning_face_with_big_eyes:'))
 
     def blur(self, img, pos):

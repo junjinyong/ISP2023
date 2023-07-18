@@ -59,8 +59,13 @@ def main():
             cv2.rectangle(img, (face.left(), face.top()), (face.right(), face.bottom()), (0, 0, 255), 2)
 
             # Find facial landmark
-            num = 34
             shape = facedetector.predictor(img, face)
+            for num in range(68):
+                x = shape.part(num).x
+                y = shape.part(num).y
+                cv2.circle(img, (x, y), 1, (0, 0, 255), -1)
+
+            num = 34
             x = shape.part(num).x
             y = shape.part(num).y
 
