@@ -55,9 +55,6 @@ def main():
             # Determine main person
             face = faces[0]
 
-            # Draw box
-            cv2.rectangle(img, (face.left(), face.top()), (face.right(), face.bottom()), (0, 0, 255), 2)
-
             # Find facial landmark
             shape = facedetector.predictor(img, face)
             for num in range(68):
@@ -71,6 +68,9 @@ def main():
 
             # Blur face
             img = blurer.blur(img, (x, y))
+
+            # Draw box
+            cv2.rectangle(img, (face.left(), face.top()), (face.right(), face.bottom()), (0, 0, 255), 2)
 
         # Display image
         cv2.imshow("Frame", img[..., ::-1])
