@@ -56,21 +56,29 @@ def main():
             face = faces[0]
 
             # Find facial landmark
-            shape = facedetector.predictor(img, face)
-            for num in range(68):
-                x = shape.part(num).x
-                y = shape.part(num).y
-                cv2.circle(img, (x, y), 5, (0, 0, 255), -1)
-
-            num = 34
-            x = shape.part(num).x
-            y = shape.part(num).y
+            # shape = facedetector.predictor(img, face)
+            # num = 34
+            # x = shape.part(num).x
+            # y = shape.part(num).y
 
             # Blur face
-            img = blurer.blur(img, (x, y))
+            for face in faces[1:]:
+                img = blurer.blur(img, face)
 
             # Draw box
             cv2.rectangle(img, (face.left(), face.top()), (face.right(), face.bottom()), (0, 0, 255), 2)
+
+            # Track the main person
+            # Get 2d coordinates
+            u = (face.top() + face.bottom()) / 2
+            v = (face.left() + face.right()) / 2
+            # Convert the 2d coordinates to 3d coordinates in camera frame
+            (x, y, z) = camera.convert2d_3d(u, v)
+            # Convert the 3d coordinates from the camera frame into
+            # Gretchen's frame using a transformatio matrix
+            (x, y, z) = camera.convert3d_3d(x, y, z)
+            # have Gretchen look at that point
+            robot.lookatpoint(x, y, z)
 
         # Display image
         cv2.imshow("Frame", img[..., ::-1])
