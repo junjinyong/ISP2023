@@ -33,7 +33,7 @@ class Blurer:
 
         # Get a drawing context
         (size, pos) = dispose(face)
-        icon = self.raw.resize(size)
+        icon = self.raw.resize((size, size))
 
         # Draw emoji on face
         result.paste(icon, pos, mask=icon)
