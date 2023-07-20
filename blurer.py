@@ -14,8 +14,9 @@ import emoji
 class Blurer:
     def __init__(self):
         # self.font = "./Arial Unicode.ttf"
-        self.font = "/usr/share/fonts/truetype/freefont/FreeMono.ttf"
-        self.tick = str(emoji.emojize(':grinning_face_with_big_eyes:'))
+        self.font = "/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf"
+        self.tick = "a\u263A"
+        # self.tick = str(emoji.emojize(':grinning_face_with_big_eyes:'))
 
     def blur(self, img, face):
         # Make into PIL image
@@ -28,9 +29,9 @@ class Blurer:
         pos1 = (face.left(), face.top())
         size1 = face.right() - face.left()
         font1 = ImageFont.truetype(self.font, size1)
-        draw.text(pos1, self.tick, (255, 255, 255), font=font1)
+        draw.text(pos1, self.tick, fill=(255, 255, 255), embedded_color=True, font=font1)
 
-        # Conver back to OpenCV image
+        # Convert back to OpenCV image
         result = np.array(pil_img)
 
         return result
