@@ -27,7 +27,8 @@ class Blurer:
 
         # Draw emoji on face
         pos1 = (face.left(), face.top())
-        size1 = face.right() - face.left()
+        # size1 = face.right() - face.left()
+        size1 = 109
         font1 = ImageFont.truetype(self.font, size1)
         draw.text(pos1, self.tick, fill=(255, 255, 255), embedded_color=True, font=font1)
 

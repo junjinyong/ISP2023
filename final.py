@@ -70,8 +70,9 @@ def main():
 
             # Track the main person
             # Get 2d coordinates
-            u = (face.top() + face.bottom()) / 2
-            v = (face.left() + face.right()) / 2
+            u = (face.left() + face.right()) / 2
+            v = (face.top() + face.bottom()) / 2
+
             # Convert the 2d coordinates to 3d coordinates in camera frame
             (x, y, z) = camera.convert2d_3d(u, v)
             # Convert the 3d coordinates from the camera frame into
