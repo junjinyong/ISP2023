@@ -25,7 +25,7 @@ def dispose(face):
 
 class Blurer:
     def __init__(self):
-        self.raw = Image.open(r"smiley.png")
+        self.raw = Image.open(r"./smiley.png")
 
     def blur(self, img, face):
         # Make into PIL image
