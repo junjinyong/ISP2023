@@ -11,28 +11,35 @@ import cv2
 import emoji
 
 
+def dispose(face):
+    left = face.left()
+    right = face.right()
+    top = face.top()
+    bottom = face.bottom()
+
+    maximum = max(right - left, top - bottom)
+    corner = ((left + right - maximum) / 2, (top + bottom - maximum) / 2)
+
+    return maximum, corner
+
+
 class Blurer:
     def __init__(self):
-        # self.font = "./Arial Unicode.ttf"
-        self.font = "/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf"
-        self.tick = "a\u263A"
-        # self.tick = str(emoji.emojize(':grinning_face_with_big_eyes:'))
+        self.raw = Image.open(r"smiley.png")
 
     def blur(self, img, face):
         # Make into PIL image
-        pil_img = Image.fromarray(img)
+        result = Image.fromarray(img)
 
         # Get a drawing context
-        draw = ImageDraw.Draw(pil_img)
+        (pos, size) = dispose(face)
+        icon = self.raw.resize(size)
 
         # Draw emoji on face
-        pos1 = (face.left(), face.top())
-        # size1 = face.right() - face.left()
-        size1 = 109
-        font1 = ImageFont.truetype(self.font, size1)
-        draw.text(pos1, self.tick, fill=(255, 255, 255), embedded_color=True, font=font1)
+        result.paste(icon, pos, mask=icon)
 
         # Convert back to OpenCV image
-        result = np.array(pil_img)
+        result = np.array(result)
 
         return result
+
