@@ -18,7 +18,7 @@ def dispose(face):
     bottom = face.bottom()
 
     maximum = max(right - left, top - bottom)
-    corner = ((left + right - maximum) / 2, (top + bottom - maximum) / 2)
+    corner = ((left + right - maximum) // 2, (top + bottom - maximum) // 2)
 
     return maximum, corner
 
