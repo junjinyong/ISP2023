@@ -1,7 +1,7 @@
 #
 # First Steps in Programming a Humanoid AI Robot
 #
-# Blur faces
+#
 #
 #
 #
@@ -9,11 +9,10 @@
 # Import required modules
 import sys
 import cv2
-import imutils
-import dlib
 import numpy as np
-from facedetector import FaceDetector
+from recognizer import FaceRecognizer
 from blurer import Blurer
+from database import FaceDatabase
 
 sys.path.append('..')
 from lib.camera_v2 import Camera
@@ -26,6 +25,13 @@ def onMouse(event, u, v, flags, param):
 
 
 def main():
+    # Set parameters
+    font = cv2.FONT_HERSHEY_DUPLEX
+    decay = 0.1
+    threshold = 0.5
+    upsamples = 1
+    jitters = 1
+
     # Initalize ROS environment
     ROSEnvironment()
 
@@ -35,9 +41,10 @@ def main():
     camera.start()
     robot.start()
 
-    # Initialize face detector and bluerer
-    facedetector = FaceDetector()
+    # Initialize face recognizer, face database and bluerer
+    recognizer = FaceRecognizer()
     blurer = Blurer()
+    database = FaceDatabase(decay=decay)
 
     # Create a window called "Frame" and install a mouse handler
     cv2.namedWindow("Frame")
@@ -46,32 +53,46 @@ def main():
     # Loop
     while True:
         # Get image from camera
-        img = camera.getImage()
+        image = camera.getImage()
 
         # Detect faces from image
-        faces = facedetector.detect(img)
+        locations = recognizer.detect(image, upsample_num_times=upsamples)
 
-        if faces:
+        if locations:
+            # Calculate face encoding
+            landmarks = [recognizer.predict(image, location) for location in locations]
+            encodings = [np.array(recognizer.encode(image, landmark, num_jitters=jitters)) for landmark in landmarks]
+
+            indices = list()
+            for face in encodings:
+                # Calculate the distance to all faces in the database
+                minimum, index = database.query(face)
+
+                # If there is a face whose distance is less than the threshold
+                # It is considered to belong to the same person
+                if minimum > threshold:
+                    index = database.insert(face)
+
+                indices.append(index)
+
             # Determine main person
-            face = faces[0]
+            host = locations[0]
 
-            # Find facial landmark
-            # shape = facedetector.predictor(img, face)
-            # num = 34
-            # x = shape.part(num).x
-            # y = shape.part(num).y
+            # Blur faces
+            for face in locations[1:]:
+                image = blurer.blur(image, face)
 
-            # Blur face
-            for face in faces[1:]:
-                img = blurer.blur(img, face)
-
-            # Draw box
-            cv2.rectangle(img, (face.left(), face.top()), (face.right(), face.bottom()), (0, 0, 255), 2)
+            # Draw boxes
+            for (face, index) in zip(locations, indices):
+                left, top, right, bottom = face.left(), face.top(), face.right(), face.bottom()
+                name = "ID: " + str(index)
+                cv2.rectangle(image, (left, top), (right, bottom), (0, 0, 255), 2)
+                cv2.putText(image, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
 
             # Track the main person
             # Get 2d coordinates
-            u = (face.left() + face.right()) / 2
-            v = (face.top() + face.bottom()) / 2
+            u = (host.left() + host.right()) / 2
+            v = (host.top() + host.bottom()) / 2
 
             # Convert the 2d coordinates to 3d coordinates in camera frame
             (x, y, z) = camera.convert2d_3d(u, v)
@@ -82,7 +103,7 @@ def main():
             robot.lookatpoint(x, y, z)
 
         # Display image
-        cv2.imshow("Frame", img[..., ::-1])
+        cv2.imshow("Frame", image[..., ::-1])
 
         # Exit loop if key was pressed
         key = cv2.waitKey(1)

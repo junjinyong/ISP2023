@@ -25,7 +25,7 @@ def dispose(face):
 
 class Blurer:
     def __init__(self):
-        self.raw = Image.open(r"./smiley.png")
+        self.__raw = Image.open(r"./smiley.png")
 
     def blur(self, img, face):
         # Make into PIL image
@@ -33,7 +33,7 @@ class Blurer:
 
         # Get a drawing context
         (size, pos) = dispose(face)
-        icon = self.raw.resize((size, size))
+        icon = self.__raw.resize((size, size))
 
         # Draw emoji on face
         result.paste(icon, pos, mask=icon)
@@ -42,4 +42,3 @@ class Blurer:
         result = np.array(result)
 
         return result
-
