@@ -55,4 +55,4 @@ def look(robot, camera, face):
     (x, y, z) = camera.convert3d_3d(x, y, z)
 
     # have Gretchen look at that point
-    robot.lookatpoint(x, y, z)
+    robot.lookatpoint(x, y, z, velocity=2.7)
