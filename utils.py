@@ -31,7 +31,7 @@ def findNearest(p, locations):
         x = (face.left() + face.right()) / 2
         y = (face.top() + face.bottom()) / 2
 
-        # Calcutate distance between clicked point and the center of the face
+        # Calculate distance between clicked point and the center of the face
         distance = abs(x - u) + abs(y - v)
 
         # Update minimum
@@ -51,7 +51,7 @@ def look(robot, camera, face):
     (x, y, z) = camera.convert2d_3d(u, v)
 
     # Convert the 3d coordinates from the camera frame into
-    # Gretchen's frame using a transformatio matrix
+    # Gretchen's frame using a transformation matrix
     (x, y, z) = camera.convert3d_3d(x, y, z)
 
     # have Gretchen look at that point

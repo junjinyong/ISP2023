@@ -8,12 +8,13 @@
 
 # Import required modules
 import sys
+
 import cv2
 import numpy as np
 
-from recognizer import FaceRecognizer
 from blurer import Blurer
 from database import FaceDatabase
+from recognizer import FaceRecognizer
 from utils import look, findNearest
 
 sys.path.append('..')
@@ -25,6 +26,7 @@ from lib.ros_environment import ROSEnvironment
 # Point indicates the clicked coordinate
 signal: int = 0
 point: tuple = (None, None)
+
 
 def onMouse(event, u, v, flags, param=None):
     # Refer to global variables
