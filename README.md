@@ -3,9 +3,21 @@
 ## Members
 
 | Number | Student ID |    Name     |
-| :----: | :--------: | :---------: |
+|:------:|:----------:|:-----------:|
 |   0    | 2021-11566 | Jinyong Jun |
 |   1    | 2023-62774 | Claire Kim  |
+
+
+
+## Abstract
+
+TODO
+
+
+
+## Introduction
+
+TODO
 
 
 
