@@ -26,27 +26,21 @@ host: int = -1
 locations: list = list()
 database: FaceDatabase = FaceDatabase()
 
+
 def onMouse(self, event, u, v, flags, param=None):
     # Refer to global variables
     global host, locations, database
-
-    mode: int = 0
-    if event == cv2.EVENT_LBUTTONDOWN:
-        mode = 1
-    elif event == cv2.EVENT_RBUTTONDOWN:
-        mode = 2
-    else:
-        return
 
     # Calculate the closest person to the given point
     index: int = findNearest(u, v, self.__locations)
     if not index:
         return
 
-    if mode == 1:
+    if event == cv2.EVENT_LBUTTONDOWN:
+        print("Toggle\n")
         database.toggle(index)
-    elif mode == 2:
-        # Determine main person
+    elif event == cv2.EVENT_RBUTTONDOWN:
+        print("Set main person\n")
         host = index
 
 
@@ -102,7 +96,8 @@ def main():
             for (face, index) in zip(locations, indices):
                 left, top, right, bottom = face.left(), face.top(), face.right(), face.bottom()
                 name = "ID: " + str(index)
-                cv2.rectangle(image, (left, top), (right, bottom), (0, 0, 255), 2)
+                color = (255, 0, 0) if index == host else (0, 0, 255)
+                cv2.rectangle(image, (left, top), (right, bottom), color, 2)
                 cv2.putText(image, name, (left + 6, bottom - 6), cv2.FONT_HERSHEY_DUPLEX, 1.0, (255, 255, 255), 1)
 
             # Track the main person

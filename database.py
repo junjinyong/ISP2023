@@ -9,7 +9,7 @@ import numpy as np
 
 
 class FaceDatabase:
-    def __init__(self, threshold=0.5, decay=0.1):
+    def __init__(self, threshold=0.6, decay=0.1):
         self.__data = list()
         self.__blur = list()
         self.__threshold = threshold

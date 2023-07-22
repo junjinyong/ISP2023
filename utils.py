@@ -5,6 +5,18 @@
 #
 #
 
+def dispose(face):
+    left = face.left()
+    right = face.right()
+    top = face.top()
+    bottom = face.bottom()
+
+    maximum = max(right - left, top - bottom)
+    corner = ((left + right - maximum) // 2, (top + bottom - maximum) // 2)
+
+    return maximum, corner
+
+
 def findNearest(u, v, locations):
     minimum: float = 100.0
     index: int = -1
