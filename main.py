@@ -14,6 +14,7 @@ import numpy as np
 from recognizer import FaceRecognizer
 from blurer import Blurer
 from database import FaceDatabase
+from utils import look, findNearest
 
 sys.path.append('..')
 from lib.camera_v2 import Camera
@@ -21,25 +22,38 @@ from lib.robot import Robot
 from lib.ros_environment import ROSEnvironment
 
 
-def onMouse(event, u, v, flags, param):
-    pass
+host: int = -1
+locations: list = list()
+database: FaceDatabase = FaceDatabase()
 
+def onMouse(self, event, u, v, flags, param=None):
+    # Refer to global variables
+    global host, locations, database
 
-def look(robot, camera, host):
-    # Get 2d coordinates
-    u = (host.left() + host.right()) / 2
-    v = (host.top() + host.bottom()) / 2
+    mode: int = 0
+    if event == cv2.EVENT_LBUTTONDOWN:
+        mode = 1
+    elif event == cv2.EVENT_RBUTTONDOWN:
+        mode = 2
+    else:
+        return
 
-    # Convert the 2d coordinates to 3d coordinates in camera frame
-    (x, y, z) = camera.convert2d_3d(u, v)
-    # Convert the 3d coordinates from the camera frame into
-    # Gretchen's frame using a transformatio matrix
-    (x, y, z) = camera.convert3d_3d(x, y, z)
-    # have Gretchen look at that point
-    robot.lookatpoint(x, y, z)
+    # Calculate the closest person to the given point
+    index: int = findNearest(u, v, self.__locations)
+    if not index:
+        return
+
+    if mode == 1:
+        database.toggle(index)
+    elif mode == 2:
+        # Determine main person
+        host = index
 
 
 def main():
+    # Refer to global variables
+    global host, locations, database
+
     # Initalize ROS environment
     # Initalize camera and robot
     ROSEnvironment()
@@ -48,14 +62,13 @@ def main():
     camera.start()
     robot.start()
 
-    # Initialize face recognizer, face database and bluerer
-    recognizer = FaceRecognizer()
-    blurer = Blurer()
-    database = FaceDatabase()
+    # Initialize face recognizer and blurer
+    recognizer: FaceRecognizer = FaceRecognizer()
+    blurer: Blurer = Blurer()
 
     # Create a window called "Frame" and install a mouse handler
     cv2.namedWindow("Frame")
-    cv2.setMouseCallback("Frame", onMouse)
+    cv2.setMouseCallback("Frame", onMouse, param=None)
 
     # Loop
     while True:
@@ -70,20 +83,20 @@ def main():
             landmarks = [recognizer.predict(image, location) for location in locations]
             encodings = [np.array(recognizer.encode(image, landmark, num_jitters=1)) for landmark in landmarks]
 
-            indices = list()
+            indices: list = list()
+            protection: list = list()
             for face in encodings:
                 # Calculate the distance to all faces in the database
                 # If there is a face whose distance is less than the threshold
                 # It is considered to belong to the same person
-                index = database.query(face, update=True, insert=True)
+                index, blur = database.query(face, update=True, insert=True)
                 indices.append(index)
-
-            # Determine main person
-            host = locations[0]
+                protection.append(blur)
 
             # Blur faces
-            for face in locations[1:]:
-                image = blurer.blur(image, face)
+            for (face, blur) in zip(locations, protection):
+                if blur:
+                    image = blurer.blur(image, face)
 
             # Draw boxes
             for (face, index) in zip(locations, indices):
@@ -99,8 +112,7 @@ def main():
         cv2.imshow("Frame", image[..., ::-1])
 
         # Exit loop if key was pressed
-        key = cv2.waitKey(1)
-        if key > 0:
+        if cv2.waitKey(1) > 0:
             break
 
 

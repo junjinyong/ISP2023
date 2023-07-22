@@ -5,22 +5,8 @@
 #
 #
 
-from PIL import Image, ImageFont, ImageDraw
+from PIL import Image
 import numpy as np
-import cv2
-import emoji
-
-
-def dispose(face):
-    left = face.left()
-    right = face.right()
-    top = face.top()
-    bottom = face.bottom()
-
-    maximum = max(right - left, top - bottom)
-    corner = ((left + right - maximum) // 2, (top + bottom - maximum) // 2)
-
-    return maximum, corner
 
 
 class Blurer:
@@ -32,7 +18,7 @@ class Blurer:
         result = Image.fromarray(img)
 
         # Get a drawing context
-        (size, pos) = dispose(face)
+        (size, pos) = Blurer.dispose(face)
         icon = self.__raw.resize((size, size))
 
         # Draw emoji on face
@@ -42,3 +28,15 @@ class Blurer:
         result = np.array(result)
 
         return result
+
+    @staticmethod
+    def dispose(face):
+        left = face.left()
+        right = face.right()
+        top = face.top()
+        bottom = face.bottom()
+
+        maximum = max(right - left, top - bottom)
+        corner = ((left + right - maximum) // 2, (top + bottom - maximum) // 2)
+
+        return maximum, corner

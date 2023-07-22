@@ -6,8 +6,6 @@
 #
 
 import dlib
-import imutils
-import numpy as np
 
 pose_predictor_model_location = r"shape_predictor_68_face_landmarks.dat"
 face_recognition_model_location = r"dlib_face_recognition_resnet_model_v1.dat"
