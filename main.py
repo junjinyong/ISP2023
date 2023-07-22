@@ -46,8 +46,8 @@ def main():
     # Refer to global variables
     global signal, point
 
-    # Initalize ROS environment
-    # Initalize camera and robot
+    # Initialize ROS environment
+    # Initialize camera and robot
     ROSEnvironment()
     camera = Camera()
     robot = Robot()
