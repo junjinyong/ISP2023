@@ -27,7 +27,7 @@ locations: list = list()
 database: FaceDatabase = FaceDatabase()
 
 
-def onMouse(self, event, u, v, flags, param=None):
+def onMouse(event, u, v, flags, param=None):
     # Refer to global variables
     global host, locations, database
 
