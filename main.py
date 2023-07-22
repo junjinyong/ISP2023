@@ -78,6 +78,7 @@ def main():
             # It is considered to belong to the same person
             indices: list = list()
             protection: list = list()
+            owner = -1
             for (order, face) in enumerate(encodings):
                 if database.compare(face, host):
                     owner = order
@@ -112,7 +113,8 @@ def main():
                 cv2.putText(image, name, (left + 6, bottom - 6), cv2.FONT_HERSHEY_DUPLEX, 1.0, (255, 255, 255), 1)
 
             # Track the main person
-            look(robot, camera, locations[owner])
+            if owner >= 0:
+                look(robot, camera, locations[owner])
 
         else:
             signal = 0
