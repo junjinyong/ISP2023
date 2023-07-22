@@ -33,9 +33,6 @@ def findNearest(p, locations):
 
 
 def look(robot, camera, face):
-    if face < 0:
-        return
-
     # Get 2d coordinates
     u = (face.left() + face.right()) / 2
     v = (face.top() + face.bottom()) / 2
