@@ -22,31 +22,24 @@ from lib.robot import Robot
 from lib.ros_environment import ROSEnvironment
 
 
-host: int = -1
-locations: list = list()
-database: FaceDatabase = FaceDatabase()
-
+signal: int = 0
+point: tuple = (None, None)
 
 def onMouse(event, u, v, flags, param=None):
     # Refer to global variables
-    global host, locations, database
+    global signal, point
 
-    # Calculate the closest person to the given point
-    index: int = findNearest(u, v, locations)
-    if not index:
-        return
+    point = (u, v)
 
     if event == cv2.EVENT_LBUTTONDOWN:
-        print("Toggle")
-        database.toggle(index)
+        signal = 1
     elif event == cv2.EVENT_RBUTTONDOWN:
-        print("Set main person")
-        host = index
+        signal = 2
 
 
 def main():
     # Refer to global variables
-    global host, locations, database
+    global signal, point
 
     # Initalize ROS environment
     # Initalize camera and robot
@@ -59,6 +52,9 @@ def main():
     # Initialize face recognizer and blurer
     recognizer: FaceRecognizer = FaceRecognizer()
     blurer: Blurer = Blurer()
+    database: FaceDatabase = FaceDatabase()
+    host: int = -1
+    owner: int = -1
 
     # Create a window called "Frame" and install a mouse handler
     cv2.namedWindow("Frame")
@@ -77,15 +73,30 @@ def main():
             landmarks = [recognizer.predict(image, location) for location in locations]
             encodings = [np.array(recognizer.encode(image, landmark, num_jitters=1)) for landmark in landmarks]
 
+            # Calculate the distance to all faces in the database
+            # If there is a face whose distance is less than the threshold
+            # It is considered to belong to the same person
             indices: list = list()
             protection: list = list()
-            for face in encodings:
-                # Calculate the distance to all faces in the database
-                # If there is a face whose distance is less than the threshold
-                # It is considered to belong to the same person
+            for (order, face) in enumerate(encodings):
+                if database.compare(face, host):
+                    owner = order
                 index, blur = database.query(face, update=True, insert=True)
                 indices.append(index)
                 protection.append(blur)
+
+            # Process click events
+            if signal:
+                target = findNearest(point, locations)
+                face = encodings[target]
+                index, _ = database.query(face, update=False, insert=False)
+
+                if signal == 1:
+                    database.toggle(index)
+                elif signal == 2:
+                    host = index
+
+                signal = 0
 
             # Blur faces
             for (face, blur) in zip(locations, protection):
@@ -96,12 +107,15 @@ def main():
             for (face, index) in zip(locations, indices):
                 left, top, right, bottom = face.left(), face.top(), face.right(), face.bottom()
                 name = "ID: " + str(index)
-                color = (255, 0, 0) if index == host else (0, 0, 255)
+                color = (255, 0, 0) if index == owner else (0, 0, 255)
                 cv2.rectangle(image, (left, top), (right, bottom), color, 2)
                 cv2.putText(image, name, (left + 6, bottom - 6), cv2.FONT_HERSHEY_DUPLEX, 1.0, (255, 255, 255), 1)
 
             # Track the main person
-            look(robot, camera, host)
+            look(robot, camera, locations[owner])
+
+        else:
+            signal = 0
 
         # Display image
         cv2.imshow("Frame", image[..., ::-1])

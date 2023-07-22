@@ -15,6 +15,12 @@ class FaceDatabase:
         self.__threshold = threshold
         self.__decay = decay
 
+    def compare(self, face, index):
+        if 0 <= index < self.get_size():
+            return np.linalg.norm(self.__data[index] - face) <= self.__threshold
+        else:
+            return False
+
     def query(self, face, update=True, insert=True):
         # Initialize minimum and index
         minimum: float = float("inf")

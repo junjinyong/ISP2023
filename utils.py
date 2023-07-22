@@ -17,27 +17,28 @@ def dispose(face):
     return maximum, corner
 
 
-def findNearest(u, v, locations):
+def findNearest(p, locations):
     minimum: float = 100.0
     index: int = -1
-    for (number, face) in enumerate(locations):
+    u, v = p
+    for (order, face) in enumerate(locations):
         x = (face.left() + face.right()) / 2
         y = (face.top() + face.bottom()) / 2
         distance = abs(x - u) + abs(y - v)
         print("distance:", distance)
         if distance < minimum:
             minimum = distance
-            index = number
+            index = order
     return index
 
 
-def look(robot, camera, host):
-    if host < 0:
+def look(robot, camera, face):
+    if face < 0:
         return
 
     # Get 2d coordinates
-    u = (host.left() + host.right()) / 2
-    v = (host.top() + host.bottom()) / 2
+    u = (face.left() + face.right()) / 2
+    v = (face.top() + face.bottom()) / 2
 
     # Convert the 2d coordinates to 3d coordinates in camera frame
     (x, y, z) = camera.convert2d_3d(u, v)
