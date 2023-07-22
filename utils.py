@@ -6,11 +6,13 @@
 #
 
 def dispose(face):
+    # Get the coordinate of four vertices
     left = face.left()
     right = face.right()
     top = face.top()
     bottom = face.bottom()
 
+    # Calculate coordinate of top left corner
     maximum = max(right - left, top - bottom)
     corner = ((left + right - maximum) // 2, (top + bottom - maximum) // 2)
 
@@ -18,17 +20,25 @@ def dispose(face):
 
 
 def findNearest(p, locations):
+    # Initialize minimum and index
     minimum: float = 100.0
     index: int = -1
     u, v = p
+
+    # Find the closest face whose distance is less than the tolerance
     for (order, face) in enumerate(locations):
+        # Calculate center
         x = (face.left() + face.right()) / 2
         y = (face.top() + face.bottom()) / 2
+
+        # Calcutate distance between clicked point and the center of the face
         distance = abs(x - u) + abs(y - v)
-        print("distance:", distance)
+
+        # Update minimum
         if distance < minimum:
             minimum = distance
             index = order
+
     return index
 
 

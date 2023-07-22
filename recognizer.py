@@ -1,7 +1,7 @@
 #
 # First Steps in Programming a Humanoid AI Robot
 #
-# FaceDetector class
+# FaceRecognizer class
 #
 #
 
@@ -13,7 +13,7 @@ face_recognition_model_location = r"dlib_face_recognition_resnet_model_v1.dat"
 
 class FaceRecognizer:
     def __init__(self):
-        # Download pretrained face landmark models here:
+        # Download pretrained models here:
         # https://github.com/ageitgey/face_recognition_models/tree/master/face_recognition_models/models
         self.__detector = dlib.get_frontal_face_detector()
         self.__predictor = dlib.shape_predictor(pose_predictor_model_location)

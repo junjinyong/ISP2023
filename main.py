@@ -21,7 +21,8 @@ from lib.camera_v2 import Camera
 from lib.robot import Robot
 from lib.ros_environment import ROSEnvironment
 
-
+# Signal indicates the type of mouse event
+# Point indicates the clicked coordinate
 signal: int = 0
 point: tuple = (None, None)
 
@@ -29,8 +30,10 @@ def onMouse(event, u, v, flags, param=None):
     # Refer to global variables
     global signal, point
 
+    # Save coordinate of clicked point
     point = (u, v)
 
+    # Number each action
     if event == cv2.EVENT_LBUTTONDOWN:
         signal = 1
     elif event == cv2.EVENT_RBUTTONDOWN:
@@ -54,7 +57,6 @@ def main():
     blurer: Blurer = Blurer()
     database: FaceDatabase = FaceDatabase()
     host: int = -1
-    owner: int = -1
 
     # Create a window called "Frame" and install a mouse handler
     cv2.namedWindow("Frame")
@@ -78,7 +80,7 @@ def main():
             # It is considered to belong to the same person
             indices: list = list()
             protection: list = list()
-            owner = -1
+            owner: int = -1
             for (order, face) in enumerate(encodings):
                 if database.compare(face, host):
                     owner = order
@@ -88,15 +90,21 @@ def main():
 
             # Process click events
             if signal:
+                # Find face nearest to the clicked point
                 target = findNearest(point, locations)
-                face = encodings[target]
-                index, _ = database.query(face, update=False, insert=False)
 
+                # Query the found face to the database to obtain DB index
+                face = encodings[target]
+                index = database.query(face, update=False, insert=False)[0]
+
+                # invert whether to blur or not if left button down
+                # change main person if right button down
                 if signal == 1:
                     database.toggle(index)
                 elif signal == 2:
                     host = index
 
+                # Reset action number
                 signal = 0
 
             # Blur faces
@@ -117,6 +125,7 @@ def main():
                 look(robot, camera, locations[owner])
 
         else:
+            # Reset action number
             signal = 0
 
         # Display image

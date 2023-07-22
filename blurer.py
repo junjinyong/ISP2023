@@ -9,10 +9,14 @@ from PIL import Image
 import numpy as np
 from utils import dispose
 
+# Image reference:
+# https://pixabay.com/vectors/smiley-emoticon-happy-face-icon-1635449/
+image_location = r"smiley.png"
+
 
 class Blurer:
     def __init__(self):
-        self.__raw = Image.open(r"./smiley.png")
+        self.__raw = Image.open(image_location)
 
     def blur(self, img, face):
         # Make into PIL image
