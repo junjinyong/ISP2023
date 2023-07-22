@@ -37,10 +37,10 @@ def onMouse(event, u, v, flags, param=None):
         return
 
     if event == cv2.EVENT_LBUTTONDOWN:
-        print("Toggle\n")
+        print("Toggle")
         database.toggle(index)
     elif event == cv2.EVENT_RBUTTONDOWN:
-        print("Set main person\n")
+        print("Set main person")
         host = index
 
 

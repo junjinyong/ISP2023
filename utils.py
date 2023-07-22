@@ -24,6 +24,7 @@ def findNearest(u, v, locations):
         x = (face.left() + face.right()) / 2
         y = (face.top() + face.bottom()) / 2
         distance = abs(x - u) + abs(y - v)
+        print("distance:", distance)
         if distance < minimum:
             minimum = distance
             index = number
