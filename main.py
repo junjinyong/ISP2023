@@ -32,7 +32,7 @@ def onMouse(self, event, u, v, flags, param=None):
     global host, locations, database
 
     # Calculate the closest person to the given point
-    index: int = findNearest(u, v, self.__locations)
+    index: int = findNearest(u, v, locations)
     if not index:
         return
 
