@@ -42,7 +42,7 @@ class FaceDatabase:
 
         # Update face in the database
         if update and flag:
-            self.__data[index] * (1.0 - self.__decay) + face * self.__decay
+            self.__data[index] = self.__data[index] * (1.0 - self.__decay) + face * self.__decay
 
         # Insert new face to the database
         if insert and not flag:
