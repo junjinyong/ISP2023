@@ -23,7 +23,7 @@ Due to the increasing reliance on and advancement of technology, there is no dou
 
 ## Goals
 
-The main objective of this project is to develop a face-blurring program that offers real-time face detection, tracking, and automated blurring capabilities. Additionally, the program includes a user interface to allow manual selection and blurring of faces, ensuring privacy compliance when recording video content involving individuals who did not consent. 
+The main objective of this project is to develop a face-blurring program that offers real-time face detection, tracking, and automated blurring capabilities. Additionally, the program includes a user interface to allow manual selection for tracing and obscuring faces, ensuring privacy compliance when effortlessly recording video. 
 
 
 
@@ -120,7 +120,7 @@ class FaceDatabase:
 
         return index, blur
     
-	# (ellipsis)
+    # (ellipsis)
 ```
 
 
@@ -160,7 +160,7 @@ def look(robot, camera, face):
 
 ### Selective Face Blurring for Bystanders
 
-It allows users to apply an adjustable blurring effect on the selected faces for the privacy protection of passersby. The database stores whether to blur or not each face ID. All the detected faces are queried to the database to determine whether to mask. A smiley face image covers faces to obscure. 
+It allows users to apply an adjustable blurring effect on the selected faces for the privacy protection of passersby. The database stores whether to blur or not each face ID. All the detected faces are queried to the database to determine whether to blur. A smiley face image covers faces to obscure. 
 
 ```python
 # Query faces
@@ -198,7 +198,7 @@ if signal:
     # change main person if right button down
     if signal == 1:
         database.toggle(index)
-    elifsignal == 2:
+    elif signal == 2:
         host = index
 
 signal = 0
@@ -232,9 +232,7 @@ def findNearest(p, locations):
 
 ## Results
 
-In conclusion, the code works as expected. This project can identify major facial features (such as the eyes, nose, and mouth) and utilize an identification system to track different faces concurrently. Users can cover a person's face with an emoji by simply clicking on it. 
-
-However, there are also problems. First, there are hardware problems. Gretchen has low resolution and can not identify faces sometimes. So tuning the threshold is required. Nevertheless it may not work for many people. The Gretchen had a low FOV and long shutter speed, so performers could not get close to it. If they do, they may get cut off from the screen or get blurry due to movements. Second, the model problem. The frontal face detector of the dlib could not detect even if the face is slightly sideways or if the image is blurry due to the movement of the camera or person. Also, Applying a cascade of models make it run slow. The face encoding model runs much slower than others, so face images are cropped. Despite all these means, there is a problem of considering the same face as different or vice versa. Last, since the acquirement of the image happens a little later than the movement of Gretchen's head, it underestimates its motion and makes excessive movements, which causes the screen to be blurry. 
+The code works as expected. This project can identify major facial features (such as the eyes, nose, and mouth) and utilize an identification system to track different faces concurrently. Users can cover a person's face with an emoji by simply clicking on it. However, the frame rate was low because ROS (robot operating system) and face recognition models ran together. The camera tracked the main person with a slight delay which caused the central person to get cut off the view sometimes. The movement of the camera and the person shook the screen, so it did not detect faces but soon stabilized. Sometimes it failed to distinguish different ones, and sometimes it did not identify the same faces. 
 
 Refer to demo in the following link for details: https://youtu.be/nI_jIoSdEYg
 
@@ -242,29 +240,25 @@ Refer to demo in the following link for details: https://youtu.be/nI_jIoSdEYg
 
 ## Discussion
 
-It was intriguing to witness how the program was able to identify a person's face then later have the ability to recognize and track it. 
-
 ### Challenges
 
-TODO
-
-
+First, since the acquirement of the image happens a little later than the movement of Gretchen's head, it underestimates its motion and makes excessive movements, which causes the screen to be blurry. Second, there are hardware problems. Gretchen has low resolution and can not identify faces sometimes. So tuning the threshold is required. Nevertheless, it may not work for many people. The Gretchen had a low FOV and long shutter speed, so performers could not get close to it. If they do, they may get cut off from the screen or get blurry due to movements. Last, the model problem. The frontal face detector of the dlib could not detect even if the face is slightly sideways or if the image is blurry due to the movement of the camera or person. Also, Applying a cascade of models make it run slow. The face encoding model runs much slower than others, so face images are cropped. Despite all these means, there is a problem of considering the same face as different or vice versa. 
 
 ### Significance
 
-
+First, the new data structure, the database, is introduced for unknown face detection. It automatically matches a given face to one in the database or adds it as a new person. With this approach, face recognition is possible without pretraining the model with known face pictures, and the model can deal with unknown faces. Furthermore, it updates face encodings with the decay rate to recognize faces even if it changes slightly over time. Second, the motion of Gretchen is understated to handle the delay easily. It proceeds only one-third of the exaggerated movement, which makes a smooth motion of the camera head. Without this mechanism, a complex algorithm should predict the future and calculate motion. Last, the code handles concurrency. Mouse events can occur anytime, calling the callback function asynchronously and non-blocking. The callback function only modifies the global variable, and the main loop handles the request to deal with such a situation. 
 
 ### Limitations
 
-The camera utilized in this project is not able to capture real-time movement accurately. It takes a bit of time for the camera to process what it captures. The camera is also fixated at a specific height, so external adjustments had to be made to correctly capture people's faces. 
+The camera utilized in this project cannot capture real-time movement accurately. It takes a bit of time for the camera to process what it captures. The camera positioned at a specific height required external adjustments for accurate face capture. 
 
-Currently, the face recognition model implemented in this project is only able to recognize faces that are directly facing the camera. A signicifcant improvement to this project would be having the ability to detect side profiles. Additionally, there is only one option to cover a person's face. It is with a smiling emoji. This may be unfortunate to those who may wish to depict other emotions. 
+Currently, the face recognition model implemented in this project can only recognize faces directly facing the camera. A significant improvement to this project would be having the ability to detect side profiles. Additionally, there is only one option to cover a person's face. It is with a smiling emoji. It may be unfortunate to those who may wish to depict other emotions. 
 
 
 
 ### Future Works
 
-TODO
+The recognition failure has two main reasons, model performance shortage and image deterioration due to shaking. Improved models would have better performance causing more delay without a better computer. Shaking can be reduced in three ways. First, it is the improvement of the Gretchen camera. Second, Finely adjust the movement of the camera. Last, reducing the computational cost of models. For now. the second and the third method seems to be eligible. 
 
 
 
@@ -276,7 +270,11 @@ TODO
 
 ## References
 
-Dalal, N., & Triggs, B. (2005). Histograms of Oriented Gradients for Human Detection.
+[1] N. Dalal and B. Triggs, "Histograms of oriented gradients for human detection," 2005 IEEE Computer Society Conference on Computer Vision and Pattern Recognition (CVPR'05), San Diego, CA, USA, 2005, pp. 886-893 vol. 1, doi: 10.1109/CVPR.2005.177.
+
+[2] V. Kazemi and J. Sullivan, "One millisecond face alignment with an ensemble of regression trees," 2014 IEEE Conference on Computer Vision and Pattern Recognition, Columbus, OH, USA, 2014, pp. 1867-1874, doi: 10.1109/CVPR.2014.241.
+
+[3] K. He, X. Zhang, S. Ren and J. Sun, "Deep Residual Learning for Image Recognition," 2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR), Las Vegas, NV, USA, 2016, pp. 770-778, doi: 10.1109/CVPR.2016.90.
 
 
 
