@@ -17,6 +17,7 @@ class FaceRecognizer:
         # https://github.com/ageitgey/face_recognition_models/tree/master/face_recognition_models/models
         self.__detector = dlib.get_frontal_face_detector()
         self.__predictor = dlib.shape_predictor(pose_predictor_model_location)
+        self.__rescaler = dlib.get_face_chip
         self.__encoder = dlib.face_recognition_model_v1(face_recognition_model_location).compute_face_descriptor
 
     def detect(self, frame, upsample_num_times=1):
@@ -24,6 +25,9 @@ class FaceRecognizer:
 
     def predict(self, frame, box):
         return self.__predictor(frame, box)
+    
+    def rescale(self, frame, box):
+        return self.__rescaler(frame, box)
 
-    def encode(self, frame, box, num_jitters=1):
-        return self.__encoder(frame, box, num_jitters=num_jitters)
+    def encode(self, frame, num_jitters=1):
+        return self.__encoder(frame, num_jitters=num_jitters)

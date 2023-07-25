@@ -45,6 +45,8 @@ def onMouse(event, u, v, flags, param=None):
 
 
 def main():
+    count: int = 0
+
     # Refer to global variables
     global signal, point
 
@@ -68,16 +70,25 @@ def main():
 
     # Loop
     while True:
+        count = 1 + count
+
         # Get image from camera
         image = camera.getImage()
-
+        # print("zeroth")
         # Detect faces from image
         locations = recognizer.detect(image, upsample_num_times=1)
 
         if locations:
             # Calculate face encoding
+            # print("first")
             landmarks = [recognizer.predict(image, location) for location in locations]
-            encodings = [np.array(recognizer.encode(image, landmark, num_jitters=1)) for landmark in landmarks]
+            landmarks = [recognizer.rescale(image, landmark) for landmark in landmarks]
+
+            # print("second")
+            encodings = [np.array(recognizer.encode(landmark, num_jitters=1)) for landmark in landmarks]
+
+            # print("third")
+
 
             # Calculate the distance to all faces in the database
             # If there is a face whose distance is less than the threshold
@@ -91,7 +102,7 @@ def main():
                 index, blur = database.query(face, update=True, insert=True)
                 indices.append(index)
                 protection.append(blur)
-
+            # print("fourth")
             # Process click events
             flag = signal
             signal = 0
@@ -110,12 +121,12 @@ def main():
                     database.toggle(index)
                 elif flag == 2:
                     host = index
-
+            # print("fifth")
             # Blur faces
             for (face, blur) in zip(locations, protection):
                 if blur:
                     image = blurer.blur(image, face)
-
+            # print("sixth")
             # Draw boxes
             for (face, index) in zip(locations, indices):
                 left, top, right, bottom = face.left(), face.top(), face.right(), face.bottom()
@@ -123,7 +134,7 @@ def main():
                 color = (255, 0, 0) if index == owner else (0, 0, 255)
                 cv2.rectangle(image, (left, top), (right, bottom), color, 2)
                 cv2.putText(image, name, (left + 6, bottom - 6), cv2.FONT_HERSHEY_DUPLEX, 1.0, (255, 255, 255), 1)
-
+            # print("seventh")
             # Track the main person
             if owner >= 0:
                 look(robot, camera, locations[owner])

@@ -47,6 +47,9 @@ def look(robot, camera, face):
     u = (face.left() + face.right()) / 2
     v = (face.top() + face.bottom()) / 2
 
+    u = (320 + 320 + u) / 3
+    v = (240 + 240 + v) / 3
+
     # Convert the 2d coordinates to 3d coordinates in camera frame
     (x, y, z) = camera.convert2d_3d(u, v)
 
@@ -55,4 +58,4 @@ def look(robot, camera, face):
     (x, y, z) = camera.convert3d_3d(x, y, z)
 
     # have Gretchen look at that point
-    robot.lookatpoint(x, y, z, velocity=2.7)
+    robot.lookatpoint(x, y, z, velocity=0.54)
