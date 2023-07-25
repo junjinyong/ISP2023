@@ -76,8 +76,8 @@ def main():
 
         if locations:
             # Calculate face encoding
-            landmarks = [recognizer.predict(image, location) for location in locations]
-            landmarks = [recognizer.rescale(image, landmark) for landmark in landmarks]
+            shapes = [recognizer.predict(image, location) for location in locations]
+            landmarks = [recognizer.rescale(image, landmark) for landmark in shapes]
             encodings = [np.array(recognizer.encode(landmark, num_jitters=1)) for landmark in landmarks]
 
             # Calculate the distance to all faces in the database
