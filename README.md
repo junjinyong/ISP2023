@@ -37,11 +37,15 @@ The first step is to compute HOG features from the input image. HOG works by div
 
 Refer to  [Histograms of Oriented Gradients for Human Detection](https://lear.inrialpes.fr/people/triggs/pubs/Dalal-cvpr05.pdf).
 
+
+
 ### Face Landmark Detection
 
 The face landmark detector implements an ensemble of regression tree methods. A regression tree is a decision tree used in machine learning that recursively partitions the input space and assigns continuous numerical values to each leaf node, making it suitable for predicting continuous target variables. The ensemble of regression trees in the proposed method combines the predictions from multiple trees using averaging or voting mechanisms to arrive at a final and more accurate landmark position estimation. The method achieves state-of-the-art face alignment within just one millisecond, demonstrating robustness to challenging conditions like varying poses and occlusions because they are estimated directly from pixel intensities without any feature extraction taking place. 
 
 Refer to  [One Millisecond Face Alignment with an Ensemble of Regression Trees](https://www.cv-foundation.org/openaccess/content_cvpr_2014/papers/Kazemi_One_Millisecond_Face_2014_CVPR_paper.pdf) for more details. 
+
+
 
 ### Face Recognition
 
@@ -53,6 +57,8 @@ Refer to  [Deep Residual Learning for Image Recognition](https://www.cv-foundati
 
 ## Implementation
 
+Refer to the following link for the full text of the code: [Final Project](https://github.com/junjinyong/ISP2023)
+
 ### Face Recognition Based on Face Embeddings
 
 The dlib library facilitates calculating face embeddings in the following process. First, the embedded frontal face detector detects faces. Then, the shape predictor model obtains 68 facial landmarks for each face. The image is cropped on each face to reduce the computational cost. Last, the face recognition model based on ResNet computes 128-dimensional facial embeddings. 
@@ -63,8 +69,6 @@ shapes = [recognizer.predict(image, location) for location in locations]
 landmarks = [recognizer.rescale(image, landmark) for landmark in shapes]
 encodings = [np.array(recognizer.encode(landmark, num_jitters=1)) for landmark in landmarks]
 ```
-
-
 
 ```python
 predictor_location = r"shape_predictor_68_face_landmarks.dat"
@@ -126,13 +130,10 @@ class FaceDatabase:
 It continuously tracks the designated main person's face throughout the video recording. Clicking on the desired individual can reassign the main person. The point is to match faces on the screen to the main person's face embedding to find out which face on the screen corresponds to the main person. If the central person's face is in the view, we can track it to be in the center of the image. The main sticking point was that Gretchen made excessive movements. Because the image processing is slow, the device erroneously perceives the movement as insufficient and thus goes a little more. Gretchen proceeds only one-third of desired one with reduced velocity to reduce such phenomena. 
 
 ```python
-# Calculate the distance to all faces in the database
-# 
+# Look for main person
 for (order, face) in enumerate(encodings):
     if database.compare(face, host):
         owner = order
-    
-    # (ellipsis)
 
 # (ellipsis)
 
@@ -152,15 +153,7 @@ def look(robot, camera, face):
     u = (320 + 320 + u) / 3
     v = (240 + 240 + v) / 3
 
-    # Convert the 2d coordinates to 3d coordinates in camera frame
-    (x, y, z) = camera.convert2d_3d(u, v)
-
-    # Convert the 3d coordinates from the camera frame into
-    # Gretchen's frame using a transformation matrix
-    (x, y, z) = camera.convert3d_3d(x, y, z)
-
-    # have Gretchen look at that point
-    robot.lookatpoint(x, y, z, velocity=0.54)
+    # (ellipsis)
 ```
 
 
@@ -183,26 +176,6 @@ for (order, face) in enumerate(encodings):
 for (face, blur) in zip(locations, protection):
     if blur:
         image = blurer.blur(image, face)
-```
-
-
-
-```python
-def blur(self, img, face):
-    # Make into PIL image
-    result = Image.fromarray(img)
-
-    # Get a drawing context
-    (size, pos) = dispose(face)
-    icon = self.__raw.resize((size, size))
-
-    # Draw emoji on face
-    result.paste(icon, pos, mask=icon)
-
-    # Convert back to OpenCV image
-    result = np.array(result)
-
-    return result
 ```
 
 
@@ -259,7 +232,11 @@ def findNearest(p, locations):
 
 ## Results
 
-This project is able to identify major facial features (such as the eyes, nose and mouth), and has the ability to utilize an identification system to track different faces concurrently. It also gives the user the option to cover a person's face with an emoji if they desire by simply clicking on the face. 
+In conclusion, the code works as expected. This project can identify major facial features (such as the eyes, nose, and mouth) and utilize an identification system to track different faces concurrently. Users can cover a person's face with an emoji by simply clicking on it. 
+
+However, there are also problems. First, there are hardware problems. Gretchen has low resolution and can not identify faces sometimes. So tuning the threshold is required. Nevertheless it may not work for many people. The Gretchen had a low FOV and long shutter speed, so performers could not get close to it. If they do, they may get cut off from the screen or get blurry due to movements. Second, the model problem. The frontal face detector of the dlib could not detect even if the face is slightly sideways or if the image is blurry due to the movement of the camera or person. Also, Applying a cascade of models make it run slow. The face encoding model runs much slower than others, so face images are cropped. Despite all these means, there is a problem of considering the same face as different or vice versa. Last, since the acquirement of the image happens a little later than the movement of Gretchen's head, it underestimates its motion and makes excessive movements, which causes the screen to be blurry. 
+
+Refer to demo in the following link for details: https://youtu.be/nI_jIoSdEYg
 
 
 
@@ -273,15 +250,15 @@ TODO
 
 
 
-### Improvements
-
-Currently, the face recognition model implemented in this project is only able to recognize faces that are directly facing the camera. A signicifcant improvement to this project would be having the ability to detect side profiles. Additionally, there is only one option to cover a person's face. It is with a smiling emoji. This may be unfortunate to those who may wish to depict other emotions. 
+### Significance
 
 
 
 ### Limitations
 
 The camera utilized in this project is not able to capture real-time movement accurately. It takes a bit of time for the camera to process what it captures. The camera is also fixated at a specific height, so external adjustments had to be made to correctly capture people's faces. 
+
+Currently, the face recognition model implemented in this project is only able to recognize faces that are directly facing the camera. A signicifcant improvement to this project would be having the ability to detect side profiles. Additionally, there is only one option to cover a person's face. It is with a smiling emoji. This may be unfortunate to those who may wish to depict other emotions. 
 
 
 
