@@ -34,7 +34,7 @@ class FaceDatabase:
             index = int(np.argmin(distances))
 
         # Flag indicates whether the face already exists
-        flag = minimum <= self.__threshold
+        flag: bool = minimum <= self.__threshold
 
         # Whether to blur or not
         if flag:

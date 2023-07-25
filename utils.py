@@ -47,6 +47,8 @@ def look(robot, camera, face):
     u = (face.left() + face.right()) / 2
     v = (face.top() + face.bottom()) / 2
 
+    # Rescale coordinates
+    # Countervail the excessive movement of the camera due to the slow feedback
     u = (320 + 320 + u) / 3
     v = (240 + 240 + v) / 3
 
