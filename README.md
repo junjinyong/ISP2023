@@ -84,7 +84,7 @@ class FaceRecognizer:
 
 ### Face Database for Unknown Face Classification
 
-A new data structure named face database saves face embeddings of known faces. To distinguish faces, it assigns IDs to face embeddings. It can handle queries by comparing queried embedding with all the saved embeddings. If there is someone in the database whose cosine similarity with the queried face is less than the threshold, they are considered the same person. If not, the queried face is a new person and saved into the database. 
+A new data structure named face database saves face embeddings of known faces. To distinguish faces, it assigns IDs to face embeddings. It can handle queries by comparing queried embedding with all the saved embeddings. If there is someone in the database whose cosine similarity with the queried face is less than the threshold, they are considered the same person. If not, the queried one is a new person and saved into the database. 
 
 ```python
 class FaceDatabase:
@@ -121,49 +121,71 @@ class FaceDatabase:
 
 
 
-
-
 ### Automated Face Tracking for Main Person
 
-It continuously tracks the designated main person's face throughout the video recording. 
-
-
-
-
-
-
-
-New data structure named FaceDatabase is introduced. It stores encodings of faces and handles queries. 
+It continuously tracks the designated main person's face throughout the video recording. Clicking on the desired individual can reassign the main person. The point is to match faces on the screen to the main person's face embedding to find out which face on the screen corresponds to the main person. If the central person's face is in the view, we can track it to be in the center of the image. The main sticking point was that Gretchen made excessive movements. Because the image processing is slow, the device erroneously perceives the movement as insufficient and thus goes a little more. Gretchen proceeds only one-third of desired one with reduced velocity to reduce such phenomena. 
 
 ```python
-def query(self, face, update=True, insert=True):
-    # Initialize minimum and index
-    minimum: float = float("inf")
-    index: int = -1
-    blur: bool = False
-
-    # Calculate minimum and index
-    if len(self.__data) > 0:
-        distances = np.linalg.norm(self.__data - face, axis=1)
-        minimum = min(distances)
-        index = int(np.argmin(distances))
-	
+# Calculate the distance to all faces in the database
+# 
+for (order, face) in enumerate(encodings):
+    if database.compare(face, host):
+        owner = order
+    
     # (ellipsis)
-    
-    # Insert new face to the database
-        if insert and minimum > self.__threshold:
-            index = len(self.__data)
-            self.__data.append(face)
-            self.__blur.append(False)
-    
-    return index, blur
+
+# (ellipsis)
+
+# Track the main person
+if owner >= 0:
+    look(robot, camera, locations[owner])
+```
+
+```python
+def look(robot, camera, face):
+    # Get 2d coordinates
+    u = (face.left() + face.right()) / 2
+    v = (face.top() + face.bottom()) / 2
+
+    # Rescale coordinates
+    # Countervail the excessive movement of the camera due to the slow feedback
+    u = (320 + 320 + u) / 3
+    v = (240 + 240 + v) / 3
+
+    # Convert the 2d coordinates to 3d coordinates in camera frame
+    (x, y, z) = camera.convert2d_3d(u, v)
+
+    # Convert the 3d coordinates from the camera frame into
+    # Gretchen's frame using a transformation matrix
+    (x, y, z) = camera.convert3d_3d(x, y, z)
+
+    # have Gretchen look at that point
+    robot.lookatpoint(x, y, z, velocity=0.54)
 ```
 
 
 
 ### Selective Face Blurring for Bystanders
 
-It allows users to apply an adjustable blurring effect on the selected faces for privacy protection of passerby. 
+It allows users to apply an adjustable blurring effect on the selected faces for the privacy protection of passersby. The database stores whether to blur or not each face ID. All the detected faces are queried to the database to determine whether to mask. A smiley face image covers faces to obscure. 
+
+```python
+# Query faces
+protection: list = list()
+for (order, face) in enumerate(encodings):
+    # (ellipsis)
+    index, blur = database.query(face, update=True, insert=True)
+    protection.append(blur)
+    
+# (ellipsis)
+
+# Blur faces
+for (face, blur) in zip(locations, protection):
+    if blur:
+        image = blurer.blur(image, face)
+```
+
+
 
 ```python
 def blur(self, img, face):
@@ -185,18 +207,13 @@ def blur(self, img, face):
 
 
 
-
-
 ### User Interface for Main Person Tracking and Selective Face Blurring
 
-Intuitive user interface allows the user to manually select the main person whose face should be tracked and bystanders whose face should be blurred. 
+The intuitive user interface allows users to manually select the central person to track and bystanders whose faces should be blurred. Clicking on the screen calls a callback function and asserts a signal flag. Then, the main loop processes the requests synchronously. It looks for all the faces on the screen and finds the nearest. Nothing happens when there is no face whose distance to the clicked point is less than the tolerance. Then it queries the closest one to the clicked coordinate in the database to get the ID. If the event is left button down, we toggle whether to blur the face. For the right button down, we change the central person to track. 
 
 ```python
 # Process click events
-flag = signal
-signal = 0
-if flag:
-    print("Signal:", flag)
+if signal:
     # Find face nearest to the clicked point
     target = findNearest(point, locations)
 
@@ -206,10 +223,36 @@ if flag:
 
     # invert whether to blur or not if left button down
     # change main person if right button down
-    if flag == 1:
+    if signal == 1:
         database.toggle(index)
-    elif flag == 2:
+    elifsignal == 2:
         host = index
+
+signal = 0
+```
+
+```python
+def findNearest(p, locations):
+    # Initialize minimum and index
+    minimum: float = 100.0
+    index: int = -1
+    u, v = p
+
+    # Find the closest face whose distance is less than the tolerance
+    for (order, face) in enumerate(locations):
+        # Calculate center
+        x = (face.left() + face.right()) / 2
+        y = (face.top() + face.bottom()) / 2
+
+        # Calculate distance between clicked point and the center of the face
+        distance = abs(x - u) + abs(y - v)
+
+        # Update minimum
+        if distance < minimum:
+            minimum = distance
+            index = order
+
+    return index
 ```
 
 
