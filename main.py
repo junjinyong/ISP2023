@@ -32,14 +32,16 @@ def onMouse(event, u, v, flags, param=None):
     # Refer to global variables
     global signal, point
 
-    # Save coordinate of clicked point
-    point = (u, v)
-
     # Number each action
     if event == cv2.EVENT_LBUTTONDOWN:
         signal = 1
     elif event == cv2.EVENT_RBUTTONDOWN:
         signal = 2
+    else:
+        return
+
+    # Sace coordinate of clicked point
+    point = (u, v)
 
 
 def main():
@@ -91,7 +93,10 @@ def main():
                 protection.append(blur)
 
             # Process click events
-            if signal:
+            flag = signal
+            signal = 0
+            if flag:
+                print("Signal:", flag)
                 # Find face nearest to the clicked point
                 target = findNearest(point, locations)
 
@@ -101,13 +106,10 @@ def main():
 
                 # invert whether to blur or not if left button down
                 # change main person if right button down
-                if signal == 1:
+                if flag == 1:
                     database.toggle(index)
-                elif signal == 2:
+                elif flag == 2:
                     host = index
-
-                # Reset action number
-                signal = 0
 
             # Blur faces
             for (face, blur) in zip(locations, protection):
@@ -125,10 +127,6 @@ def main():
             # Track the main person
             if owner >= 0:
                 look(robot, camera, locations[owner])
-
-        else:
-            # Reset action number
-            signal = 0
 
         # Display image
         cv2.imshow("Frame", image[..., ::-1])
