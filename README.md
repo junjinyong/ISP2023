@@ -11,7 +11,7 @@
 
 ## Abstract
 
-TODO
+This report presents a face-blurring program for real-time face detection and blurring in videos. The project aims to ensure privacy compliance when recording videos by obscuring faces, either automatically or manually. The program successfully detects faces and tracks faces using face recognition technology and offers the option to blur faces with a user-friendly interface. Limitations include camera-related delays and model performance issues. Future work involves improving camera systems, expanding recognition capabilities, and adding more blurring options. 
 
 
 
@@ -244,9 +244,7 @@ Refer to demo in the following link for details: https://youtu.be/nI_jIoSdEYg
 
 First, since the acquirement of the image happens a little later than the movement of Gretchen's head, it underestimates its motion and makes excessive movements, which causes the screen to be blurry. Second, there are hardware problems. Gretchen has low resolution and can not identify faces sometimes. So tuning the threshold is required. Nevertheless, it may not work for many people. The Gretchen had a low FOV and long shutter speed, so performers could not get close to it. If they do, they may get cut off from the screen or get blurry due to movements. Last, the model problem. The frontal face detector of the dlib could not detect even if the face is slightly sideways or if the image is blurry due to the movement of the camera or person. Also, Applying a cascade of models make it run slow. The face encoding model runs much slower than others, so face images are cropped. Despite all these means, there is a problem of considering the same face as different or vice versa. 
 
-### Significance
-
-First, the new data structure, the database, is introduced for unknown face detection. It automatically matches a given face to one in the database or adds it as a new person. With this approach, face recognition is possible without pretraining the model with known face pictures, and the model can deal with unknown faces. Furthermore, it updates face encodings with the decay rate to recognize faces even if it changes slightly over time. Second, the motion of Gretchen is understated to handle the delay easily. It proceeds only one-third of the exaggerated movement, which makes a smooth motion of the camera head. Without this mechanism, a complex algorithm should predict the future and calculate motion. Last, the code handles concurrency. Mouse events can occur anytime, calling the callback function asynchronously and non-blocking. The callback function only modifies the global variable, and the main loop handles the request to deal with such a situation. 
+​	
 
 ### Limitations
 
@@ -264,7 +262,7 @@ The recognition failure has two main reasons, model performance shortage and ima
 
 ## Conclusion
 
-TODO
+The face-blurring program effectively detects and blurs face in real-time videos. It introduces a face database for unknown face detection, allowing recognition without pretraining. However, there are some limitations, like camera delays and model performance. Future improvements include refining camera systems, enhancing face recognition, and adding more blurring options to increase versatility. Overall, the project lays the foundation for privacy-conscious video recording solutions. 
 
 
 
